@@ -8,6 +8,7 @@ import {
   View,
   Alert,
 } from "react-native";
+import PropTypes from "prop-types";
 import firebase from "../database/firebaseDB";
 
 const db = firebase.firestore().collection("attendees");
@@ -78,6 +79,12 @@ export default function AttendeeAdd({ navigation }) {
     </SafeAreaView>
   );
 }
+
+AttendeeAdd.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 const styles = StyleSheet.create({
   container: {

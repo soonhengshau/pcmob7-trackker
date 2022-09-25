@@ -6,6 +6,7 @@ import AttendeeAdd from "./screens/AttendeeAdd";
 import ViewAttendance from "./screens/ViewAttendance";
 import ViewAttendee from "./screens/ViewAttendee";
 import EditAttendee from "./screens/EditAttendee";
+import PropTypes from "prop-types";
 import { TouchableOpacity, Text, StyleSheet, SafeAreaView } from "react-native";
 
 const Stack = createNativeStackNavigator();
@@ -63,6 +64,12 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+HomeScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 const styles = StyleSheet.create({
   container: {

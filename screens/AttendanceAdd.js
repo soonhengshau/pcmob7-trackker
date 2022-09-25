@@ -4,10 +4,11 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
+import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 
 import DropDownPicker from "react-native-dropdown-picker";
@@ -22,10 +23,11 @@ export default function AttendanceAdd({ navigation }) {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
   const [attendeeInfo, setAttendeeInfo] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isPresent, setIsPresent] = useState("absent");
   let classOptions = [...attendeeInfo];
   const [date, setDate] = useState(null);
+  const [btnData, setBtnData] = useState([]);
+  let counter = 0;
+
   useEffect(() => {
     let today = new Date();
     let date =
@@ -44,6 +46,7 @@ export default function AttendanceAdd({ navigation }) {
         const noteObject = {
           ...doc.data(),
           id: doc.id,
+          status: "absent",
         };
         return noteObject;
       });
@@ -54,25 +57,29 @@ export default function AttendanceAdd({ navigation }) {
   }, []);
 
   useEffect(() => {
-    let list = [];
-    for (let x = 0; x < attendeeInfo.length; x++) {
-      list = [...list, attendeeInfo[x].class];
-    }
-    const unique = [...new Set(list)];
-
-    for (let x in unique) {
-      setItems((items) => [...items, { label: unique[x], value: unique[x] }]);
-    }
+    const u = classOptions.map((arr) => arr.class);
+    const y = [...new Set(u)];
+    y.forEach((arr) =>
+      setItems((prev) => [...prev, { label: arr, value: arr }])
+    );
   }, [attendeeInfo]);
 
-  function statusCheck(id) {
-    console.log(id);
-    loading ? setLoading(false) : setLoading(true);
-    loading ? setIsPresent("absent") : setIsPresent("present");
+  function addMe(id) {
+    const newInfo = [...btnData];
+    if (btnData[id - 1] == "absent") {
+      newInfo[id - 1] = "present";
+      Object.assign(funnel[id - 1], { status: "present" });
+    } else {
+      newInfo[id - 1] = "absent";
+    }
+    setBtnData(newInfo);
   }
 
   // The function to render each row in our FlatList
   function renderItem({ item }) {
+    counter++;
+    let btnId = counter;
+    console.log(item);
     return (
       <View
         style={{
@@ -87,8 +94,8 @@ export default function AttendanceAdd({ navigation }) {
         }}
       >
         <Text style={styles.item}>{item.name}</Text>
-        <TouchableOpacity onPress={() => statusCheck(item.id)}>
-          <Text style={styles.item}>{loading ? "Present" : "Absent"}</Text>
+        <TouchableOpacity onPress={() => addMe(btnId)} style={styles.button}>
+          <Text style={styles.buttonText}>{btnData[btnId - 1]}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -102,7 +109,7 @@ export default function AttendanceAdd({ navigation }) {
     if (funnel.length !== 0) {
       funnel.forEach((item) => {
         const newNote = {
-          status: isPresent,
+          status: item.status,
           attendeeID: item.name,
           timestamp: date,
         };
@@ -147,6 +154,12 @@ export default function AttendanceAdd({ navigation }) {
   );
 }
 
+AttendanceAdd.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -155,6 +168,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   item: {
+    marginRight: 10,
     fontSize: 22,
     color: "white",
   },
@@ -165,6 +179,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   buttonText: {
+    fontSize: 18,
+    color: "white",
     textAlign: "center",
   },
 });
